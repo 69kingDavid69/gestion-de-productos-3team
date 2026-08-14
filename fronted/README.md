@@ -1,59 +1,87 @@
-# Fronted
+# Gestión de productos — Frontend (Angular 22)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.3.
+Proyecto final del curso: SPA en Angular que consume la [API de Gestión de
+Productos](../gestion-de-productos) (NestJS + PostgreSQL/Supabase + JWT).
 
-## Development server
+Permite explorar un catálogo de productos, filtrarlo por categoría y
+buscarlo, ver el detalle de cada producto, autenticarse, gestionar
+productos/categorías, marcar favoritos y editar el perfil.
 
-To start a local development server, run:
+## Integrantes
 
-```bash
-ng serve
-```
+- David (s4turn) — auth, login, registro, navbar
+- jpgcano — catálogo, detalle de producto, gestión de productos/categorías, favoritos, perfil
+- [Nombre]
+- [Nombre]
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Tecnologías
 
-## Code scaffolding
+- Angular 22 (standalone components, signals, `@if`/`@for`)
+- TypeScript
+- RxJS
+- Formularios con `[(ngModel)]` (login/registro) y Reactive Forms (admin)
+- CSS con variables (design tokens), sin frameworks de UI
+- npm
+- Vitest (unit tests)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## Cómo instalar
 
 ```bash
-ng build
+npm install
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Configuración de la API
 
-## Running unit tests
+La URL del backend se define en `src/environments/`:
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+- `environment.ts` (desarrollo, usado por `npm start`): `http://localhost:3000`
+- `environment.prod.ts` (build de producción): `https://gestion-de-productos-three.vercel.app`
+
+## Cómo ejecutar
 
 ```bash
-ng test
+npm start
 ```
 
-## Running end-to-end tests
+Abrí `http://localhost:4200`. Necesitás el backend corriendo (local en
+`localhost:3000`, o cambiar `environment.ts` para usar el desplegado).
 
-For end-to-end (e2e) testing, run:
+## Build de producción
 
 ```bash
-ng e2e
+npm run build
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Tests
 
-## Additional Resources
+```bash
+npm test
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## URL de la API
+
+- Producción: <https://gestion-de-productos-three.vercel.app>
+- Documentación interactiva (Swagger): <https://gestion-de-productos-three.vercel.app/api/docs>
+
+## Estructura del proyecto
+
+```text
+src/app/
+├── pages/            # Home, Login, Register, Products, Categories, Favorites, Profile, ProductDetail
+├── components/        # Navbar, Sidebar, Footer, ProductCard, Loading, SearchBar
+├── services/          # AuthService, ProductService, CategoryService, FavoriteService, UserService
+├── guards/            # authGuard (protege /products, /categories, /favorites, /profile)
+├── interceptors/      # authInterceptor (agrega el JWT y maneja 401)
+└── models/            # Interfaces TypeScript alineadas con la API
+```
+
+## Funcionalidades
+
+- **Home** (pública): listado de productos, búsqueda y filtro por categoría.
+- **Detalle de producto** (pública): galería, precio, stock, botón de favorito si hay sesión.
+- **Login / Registro**: formularios con `[(ngModel)]`, guardan el JWT y redirigen.
+- **Productos / Categorías** (protegidas): CRUD completo.
+- **Favoritos** (protegida): agregar/quitar productos.
+- **Perfil** (protegida): datos de la cuenta y cambio de contraseña.
+- **Logout**: botón en el navbar, borra el token y redirige al Home.
+- **Auth Guard** + **HTTP Interceptor**: rutas protegidas y JWT automático en cada request, con logout forzado en un 401.

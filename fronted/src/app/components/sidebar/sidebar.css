@@ -1,0 +1,88 @@
+/* Panel de filtros: fondo plano con separadores, como el mockup de Stitch. */
+.filters {
+  position: sticky;
+  top: 1.5rem;
+  padding-right: 1.5rem;
+  border-right: 1px solid var(--color-border);
+}
+
+.filters-title {
+  margin: 0 0 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.filter-group {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.filter-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.chevron {
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease;
+}
+
+.chevron.up { transform: rotate(180deg); }
+
+.filter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  list-style: none;
+  margin: 0.85rem 0 0;
+  padding: 0;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.filter-option input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.filter-option:hover span { color: var(--color-primary); }
+
+.filter-option:has(input:checked) span {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+@media (max-width: 860px) {
+  .filters {
+    position: static;
+    padding-right: 0;
+    padding-bottom: 1.25rem;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+}

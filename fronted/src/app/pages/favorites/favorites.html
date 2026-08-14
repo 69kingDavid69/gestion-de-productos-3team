@@ -1,0 +1,25 @@
+<div class="page-container">
+  <header class="favorites-header">
+    <h1>Mis favoritos</h1>
+    <p class="text-muted">{{ favorites().length }} producto(s) guardados.</p>
+  </header>
+
+  @if (loading()) {
+    <app-loading message="Cargando tus favoritos..." />
+  } @else if (error()) {
+    <div class="empty-state">{{ error() }}</div>
+  } @else if (favorites().length === 0) {
+    <div class="empty-state">Todavía no agregaste productos a favoritos.</div>
+  } @else {
+    <div class="product-grid">
+      @for (product of favorites(); track product.id) {
+        <app-product-card
+          [product]="product"
+          [showFavorite]="true"
+          [isFavorite]="true"
+          (favoriteToggle)="onRemoveFavorite($event)"
+        />
+      }
+    </div>
+  }
+</div>

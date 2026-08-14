@@ -1,0 +1,72 @@
+@if (loading()) {
+  <app-loading message="Cargando tu perfil..." />
+} @else if (error() || !user()) {
+  <div class="empty-state">{{ error() }}</div>
+} @else {
+  <div class="page-container">
+    <h1>Perfil y seguridad</h1>
+
+    <div class="profile-layout">
+      <section class="card profile-info">
+        <h2>Información de la cuenta</h2>
+        <dl>
+          <dt>Nombre</dt>
+          <dd>{{ user()!.name }}</dd>
+          <dt>Correo electrónico</dt>
+          <dd>{{ user()!.email }}</dd>
+          @if (user()!.createdAt) {
+            <dt>Miembro desde</dt>
+            <dd>{{ user()!.createdAt | date: 'longDate' }}</dd>
+          }
+        </dl>
+      </section>
+
+      <section class="card profile-security">
+        <h2>Cambiar contraseña</h2>
+
+        @if (passwordError()) {
+          <p class="field-error">{{ passwordError() }}</p>
+        }
+        @if (passwordSuccess()) {
+          <p class="field-success">{{ passwordSuccess() }}</p>
+        }
+
+        <form [formGroup]="passwordForm" (ngSubmit)="submitPasswordChange()">
+          <div class="field">
+            <label class="field-label" for="currentPassword">Contraseña actual</label>
+            <input
+              id="currentPassword"
+              type="password"
+              class="input"
+              formControlName="currentPassword"
+            />
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="newPassword">Nueva contraseña</label>
+            <input id="newPassword" type="password" class="input" formControlName="newPassword" />
+            <span class="field-hint">Mínimo 6 caracteres, distinta a la actual.</span>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="confirmNewPassword">Confirmar nueva contraseña</label>
+            <input
+              id="confirmNewPassword"
+              type="password"
+              class="input"
+              [class.input-invalid]="passwordsMismatch"
+              formControlName="confirmNewPassword"
+            />
+            @if (passwordsMismatch) {
+              <span class="field-error">Las contraseñas no coinciden.</span>
+            }
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" [disabled]="submitting()">
+            {{ submitting() ? 'Actualizando...' : 'Actualizar contraseña' }}
+          </button>
+        </form>
+      </section>
+    </div>
+  </div>
+}

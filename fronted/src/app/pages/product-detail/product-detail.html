@@ -1,0 +1,135 @@
+@if (loading()) {
+  <app-loading message="Cargando producto..." />
+} @else if (error() || !product()) {
+  <div class="empty-state">{{ error() }}</div>
+} @else {
+  <div class="detail-page">
+    <a routerLink="/" class="back-link">&larr; Volver al catálogo</a>
+
+    <div class="detail-layout">
+      <div class="gallery">
+        <div class="gallery-main">
+          @if (product()!.images.length > 0) {
+            <img [src]="product()!.images[activeImageIndex()].url" [alt]="product()!.name" />
+          } @else {
+            <div class="gallery-placeholder" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="72" height="72" fill="none" stroke="currentColor" stroke-width="1.25">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="m3 15 5-5 4 4 3-3 6 6" />
+                <circle cx="9" cy="8.5" r="1.5" />
+              </svg>
+            </div>
+          }
+        </div>
+
+        @if (product()!.images.length > 1) {
+          <div class="gallery-thumbs">
+            @for (image of product()!.images; track image.id; let i = $index) {
+              <button
+                type="button"
+                class="gallery-thumb"
+                [class.active]="i === activeImageIndex()"
+                [attr.aria-label]="'Ver imagen ' + (i + 1)"
+                (click)="selectImage(i)"
+              >
+                <img [src]="image.url" [alt]="product()!.name" />
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="detail-info">
+        <h1 class="detail-name">{{ product()!.name }}</h1>
+
+        @if (product()!.category) {
+          <span class="detail-chip">{{ product()!.category.name }}</span>
+        }
+
+        <div class="detail-price-row">
+          <span class="detail-price">{{ product()!.price | currency }} USD</span>
+          @if (product()!.stock > 0) {
+            <span class="stock stock-in">
+              <span class="dot" aria-hidden="true"></span>
+              En stock <span class="stock-detail">- {{ product()!.stock }} unidades disponibles</span>
+            </span>
+          } @else {
+            <span class="stock stock-out">
+              <span class="dot" aria-hidden="true"></span>
+              Sin stock
+            </span>
+          }
+        </div>
+
+        @if (product()!.description) {
+          <p class="detail-description">{{ product()!.description }}</p>
+        }
+
+        @if (isAuthenticated()) {
+          <button
+            type="button"
+            class="favorite-btn"
+            [class.is-favorite]="isFavorite()"
+            [disabled]="favoriteBusy()"
+            (click)="toggleFavorite()"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+                 [attr.fill]="isFavorite() ? 'currentColor' : 'none'"
+                 stroke="currentColor" stroke-width="2">
+              <path d="M12 21s-6.7-4.35-9.33-8.14C1.02 10.6 1.6 7.2 4.6 5.8c2.1-1 4.4-.3 5.7 1.4l1.7 2.2 1.7-2.2c1.3-1.7 3.6-2.4 5.7-1.4 3 1.4 3.58 4.8 1.93 7.06C18.7 16.65 12 21 12 21Z" />
+            </svg>
+            {{ isFavorite() ? 'Quitar de favoritos' : 'Agregar a favoritos' }}
+          </button>
+        } @else {
+          <a routerLink="/login" class="favorite-btn favorite-btn-outline">
+            Iniciá sesión para agregar a favoritos
+          </a>
+        }
+
+        <div class="accordions">
+          <details class="accordion" open>
+            <summary>
+              Especificaciones
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <dl class="spec-list">
+              <div>
+                <dt>Categoría</dt>
+                <dd>{{ product()!.category?.name ?? 'Sin categoría' }}</dd>
+              </div>
+              <div>
+                <dt>Precio</dt>
+                <dd>{{ product()!.price | currency }}</dd>
+              </div>
+              <div>
+                <dt>Stock</dt>
+                <dd>{{ product()!.stock }} unidades</dd>
+              </div>
+              <div>
+                <dt>Código</dt>
+                <dd class="mono">{{ product()!.id }}</dd>
+              </div>
+            </dl>
+          </details>
+
+          <details class="accordion">
+            <summary>
+              Envíos y devoluciones
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <p class="accordion-text">
+              Envío a todo el país en 3 a 5 días hábiles. Podés devolver el producto sin cargo
+              dentro de los 30 días de recibido, siempre que conserve su empaque original.
+            </p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+}

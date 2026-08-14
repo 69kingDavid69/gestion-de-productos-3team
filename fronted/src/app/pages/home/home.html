@@ -1,0 +1,72 @@
+<div class="storefront">
+  <header class="storefront-bar">
+    <h1 class="storefront-title">Catálogo de productos</h1>
+    <app-search-bar
+      class="storefront-search"
+      placeholder="Buscar productos..."
+      (search)="onSearch($event)"
+    />
+    <div class="storefront-meta">
+      @if (!loading()) {
+        <span class="results-count">{{ total() }} producto{{ total() === 1 ? '' : 's' }}</span>
+      }
+    </div>
+  </header>
+
+  <div class="storefront-layout">
+    <app-sidebar
+      [categories]="categories()"
+      [selectedCategoryId]="selectedCategoryId()"
+      (selectCategory)="onSelectCategory($event)"
+    />
+
+    <section class="storefront-content">
+      @if (error()) {
+        <div class="empty-state">{{ error() }}</div>
+      } @else if (!loading() && products().length === 0) {
+        <div class="empty-state">No encontramos productos con esos filtros.</div>
+      } @else {
+        <div class="grid-wrapper" [class.is-loading]="loading()">
+          <div class="product-grid">
+            @for (product of products(); track product.id) {
+              <app-product-card
+                [product]="product"
+                [showFavorite]="isAuthenticated()"
+                [isFavorite]="favoriteIds().has(product.id)"
+                (favoriteToggle)="onToggleFavorite($event)"
+              />
+            }
+          </div>
+
+          @if (loading()) {
+            <div class="loading-overlay">
+              <app-loading message="Cargando productos..." />
+            </div>
+          }
+        </div>
+
+        @if (totalPages() > 1) {
+          <nav class="pagination" aria-label="Paginación de productos">
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              [disabled]="page() === 1"
+              (click)="goToPage(page() - 1)"
+            >
+              Anterior
+            </button>
+            <span class="pagination-status">Página {{ page() }} de {{ totalPages() }}</span>
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              [disabled]="page() === totalPages()"
+              (click)="goToPage(page() + 1)"
+            >
+              Siguiente
+            </button>
+          </nav>
+        }
+      }
+    </section>
+  </div>
+</div>

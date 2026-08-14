@@ -3,6 +3,10 @@
 
   <div class="links">
     @if (currentUser(); as user) {
+      <a routerLink="/products" routerLinkActive="active-link">Productos</a>
+      <a routerLink="/categories" routerLinkActive="active-link">Categorías</a>
+      <a routerLink="/favorites" routerLinkActive="active-link">Favoritos</a>
+      <a routerLink="/profile" routerLinkActive="active-link">Perfil</a>
       <span>Hola, {{ user.name }}</span>
       <button type="button" (click)="logout()" [disabled]="loading">
         {{ loading ? 'Cerrando...' : 'Cerrar sesión' }}

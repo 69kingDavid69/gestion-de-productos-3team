@@ -1,0 +1,91 @@
+<div class="page-container">
+  <header class="admin-header">
+    <div>
+      <h1>Gestión de categorías</h1>
+      <p class="text-muted">Organizá el catálogo en categorías.</p>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="openCreateForm()">
+      + Crear categoría
+    </button>
+  </header>
+
+  @if (formOpen()) {
+    <div class="card form-panel">
+      <h2>{{ editingId() ? 'Editar categoría' : 'Nueva categoría' }}</h2>
+
+      @if (formError()) {
+        <p class="field-error">{{ formError() }}</p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submitForm()" class="category-form">
+        <div class="field">
+          <label class="field-label" for="name">Nombre</label>
+          <input id="name" class="input" formControlName="name" />
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="description">Descripción</label>
+          <textarea id="description" class="input" rows="2" formControlName="description"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeForm()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+            {{ submitting() ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (loading()) {
+    <app-loading message="Cargando categorías..." />
+  } @else if (error()) {
+    <div class="empty-state">{{ error() }}</div>
+  } @else if (categories().length === 0) {
+    <div class="empty-state">Todavía no hay categorías cargadas.</div>
+  } @else {
+    <div class="card table-wrapper">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (category of categories(); track category.id) {
+            <tr>
+              <td>{{ category.name }}</td>
+              <td>{{ category.description || '—' }}</td>
+              <td class="actions-cell">
+                @if (confirmDeleteId() === category.id) {
+                  <span class="confirm-delete">
+                    ¿Eliminar?
+                    <button
+                      type="button"
+                      class="btn btn-danger btn-sm"
+                      [disabled]="deletingId() === category.id"
+                      (click)="confirmDelete(category.id)"
+                    >
+                      Sí
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" (click)="cancelDelete()">No</button>
+                  </span>
+                } @else {
+                  <button type="button" class="btn btn-secondary btn-sm" (click)="openEditForm(category)">
+                    Editar
+                  </button>
+                  <button type="button" class="btn btn-danger btn-sm" (click)="askDelete(category.id)">
+                    Eliminar
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

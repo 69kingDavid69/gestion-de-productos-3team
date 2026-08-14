@@ -1,0 +1,30 @@
+h1 { margin: 0 0 1.5rem; }
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.profile-info,
+.profile-security {
+  padding: 1.5rem;
+}
+
+.profile-info h2,
+.profile-security h2 {
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+}
+
+dl { margin: 0; display: flex; flex-direction: column; gap: 0.2rem; }
+dt { font-size: 0.8125rem; color: var(--color-text-muted); margin-top: 0.75rem; }
+dt:first-child { margin-top: 0; }
+dd { margin: 0; font-weight: 600; }
+
+@media (max-width: 780px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+}

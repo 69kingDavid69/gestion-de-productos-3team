@@ -1,16 +1,19 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { AuthResponse, LoginData, RegisterData, User } from '../models/auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/auth';
+  private readonly apiUrl = `${environment.apiUrl}/auth`;
   private readonly tokenKey = 'accessToken';
   private readonly userKey = 'currentUser';
 
   readonly currentUser = signal<User | null>(this.readUser());
+  /** Atajo derivado de currentUser, útil para @if en templates. */
+  readonly isAuthenticated = computed(() => this.currentUser() !== null);
 
   login(data: LoginData): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
