@@ -27,6 +27,7 @@ export class Categories implements OnInit {
   protected readonly submitting = signal(false);
   protected readonly confirmDeleteId = signal<string | null>(null);
   protected readonly deletingId = signal<string | null>(null);
+  protected readonly actionError = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -89,6 +90,7 @@ export class Categories implements OnInit {
   }
 
   askDelete(id: string): void {
+    this.actionError.set(null);
     this.confirmDeleteId.set(id);
   }
 
@@ -98,15 +100,17 @@ export class Categories implements OnInit {
 
   confirmDelete(id: string): void {
     this.deletingId.set(id);
+    this.actionError.set(null);
     this.categoryService.delete(id).subscribe({
       next: () => {
         this.categories.update((current) => current.filter((category) => category.id !== id));
         this.deletingId.set(null);
         this.confirmDeleteId.set(null);
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.deletingId.set(null);
         this.confirmDeleteId.set(null);
+        this.actionError.set(this.extractMessage(error, 'No pudimos eliminar la categoría.'));
       },
     });
   }
@@ -127,11 +131,20 @@ export class Categories implements OnInit {
     });
   }
 
-  private extractMessage(error: HttpErrorResponse): string {
+  private extractMessage(error: HttpErrorResponse, fallback = 'Ocurrió un error. Intentá de nuevo.'): string {
     const apiError = error.error as ApiError | undefined;
     if (Array.isArray(apiError?.message)) {
       return apiError.message.join(' ');
     }
-    return apiError?.message ?? 'Ocurrió un error. Intentá de nuevo.';
+    if (apiError?.message) {
+      return apiError.message;
+    }
+    if (error.status === 404) {
+      return 'La categoría ya no existe. Actualizá la página.';
+    }
+    if (error.status === 409) {
+      return 'No se puede completar: la categoría está en uso o el nombre ya existe.';
+    }
+    return fallback;
   }
 }

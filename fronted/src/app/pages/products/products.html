@@ -74,6 +74,10 @@
     </div>
   }
 
+  @if (actionError()) {
+    <p class="field-error action-error" role="alert">{{ actionError() }}</p>
+  }
+
   @if (loading()) {
     <app-loading message="Cargando productos..." />
   } @else if (error()) {

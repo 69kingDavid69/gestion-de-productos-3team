@@ -80,6 +80,10 @@
             </svg>
             {{ isFavorite() ? 'Quitar de favoritos' : 'Agregar a favoritos' }}
           </button>
+
+          @if (favoriteError()) {
+            <p class="field-error action-error" role="alert">{{ favoriteError() }}</p>
+          }
         } @else {
           <a routerLink="/login" class="favorite-btn favorite-btn-outline">
             Iniciá sesión para agregar a favoritos

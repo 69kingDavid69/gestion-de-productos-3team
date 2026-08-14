@@ -35,6 +35,7 @@ export class Products implements OnInit {
   protected readonly submitting = signal(false);
   protected readonly confirmDeleteId = signal<string | null>(null);
   protected readonly deletingId = signal<string | null>(null);
+  protected readonly actionError = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -128,6 +129,7 @@ export class Products implements OnInit {
   }
 
   askDelete(id: string): void {
+    this.actionError.set(null);
     this.confirmDeleteId.set(id);
   }
 
@@ -137,15 +139,17 @@ export class Products implements OnInit {
 
   confirmDelete(id: string): void {
     this.deletingId.set(id);
+    this.actionError.set(null);
     this.productService.delete(id).subscribe({
       next: () => {
         this.products.update((current) => current.filter((product) => product.id !== id));
         this.deletingId.set(null);
         this.confirmDeleteId.set(null);
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.deletingId.set(null);
         this.confirmDeleteId.set(null);
+        this.actionError.set(this.extractMessage(error, 'No pudimos eliminar el producto.'));
       },
     });
   }
@@ -168,11 +172,20 @@ export class Products implements OnInit {
       });
   }
 
-  private extractMessage(error: HttpErrorResponse): string {
+  private extractMessage(error: HttpErrorResponse, fallback = 'Ocurrió un error. Intentá de nuevo.'): string {
     const apiError = error.error as ApiError | undefined;
     if (Array.isArray(apiError?.message)) {
       return apiError.message.join(' ');
     }
-    return apiError?.message ?? 'Ocurrió un error. Intentá de nuevo.';
+    if (apiError?.message) {
+      return apiError.message;
+    }
+    if (error.status === 404) {
+      return 'El producto ya no existe. Actualizá la página.';
+    }
+    if (error.status === 409) {
+      return 'Ya existe un producto con ese nombre.';
+    }
+    return fallback;
   }
 }

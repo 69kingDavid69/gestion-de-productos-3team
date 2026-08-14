@@ -1,8 +1,10 @@
 import { CurrencyPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { Loading } from '../../components/loading/loading';
+import { ApiError } from '../../models/api-error.model';
 import { Product } from '../../models/product.model';
 import { AuthService } from '../../services/auth.service';
 import { FavoriteService } from '../../services/favorite.service';
@@ -28,6 +30,7 @@ export class ProductDetail implements OnInit {
   protected readonly activeImageIndex = signal(0);
   protected readonly isFavorite = signal(false);
   protected readonly favoriteBusy = signal(false);
+  protected readonly favoriteError = signal<string | null>(null);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -63,7 +66,9 @@ export class ProductDetail implements OnInit {
     }
 
     this.favoriteBusy.set(true);
-    const request = this.isFavorite()
+    this.favoriteError.set(null);
+    const removing = this.isFavorite();
+    const request = removing
       ? this.favoriteService.remove(product.id)
       : this.favoriteService.add(product.id);
 
@@ -72,8 +77,30 @@ export class ProductDetail implements OnInit {
         this.isFavorite.update((current) => !current);
         this.favoriteBusy.set(false);
       },
-      error: () => this.favoriteBusy.set(false),
+      error: (error: HttpErrorResponse) => {
+        this.favoriteBusy.set(false);
+        this.favoriteError.set(
+          this.extractMessage(
+            error,
+            removing ? 'No pudimos quitar el producto de favoritos.' : 'No pudimos agregar el producto a favoritos.',
+          ),
+        );
+      },
     });
+  }
+
+  private extractMessage(error: HttpErrorResponse, fallback: string): string {
+    const apiError = error.error as ApiError | undefined;
+    if (Array.isArray(apiError?.message)) {
+      return apiError.message.join(' ');
+    }
+    if (apiError?.message) {
+      return apiError.message;
+    }
+    if (error.status === 404) {
+      return 'Este producto ya no está disponible.';
+    }
+    return fallback;
   }
 
   private checkFavoriteStatus(productId: string): void {
