@@ -1,0 +1,43 @@
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '../../services/auth.service';
+
+@Component({
+  selector: 'app-login',
+  imports: [FormsModule, RouterLink],
+  templateUrl: './login.html',
+  styleUrl: './login.css',
+})
+export class Login {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+  email = '';
+  password = '';
+  errorMessage = '';
+  loading = false;
+
+  submit(): void {
+    this.errorMessage = '';
+    this.loading = true;
+
+    this.authService.login({ email: this.email, password: this.password }).subscribe({
+      next: () => {
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/';
+        this.router.navigateByUrl(returnUrl);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage = this.getErrorMessage(error);
+        this.loading = false;
+      },
+    });
+  }
+
+  private getErrorMessage(error: HttpErrorResponse): string {
+    const message = error.error?.message;
+    return Array.isArray(message) ? message.join('. ') : message || 'No fue posible iniciar sesión.';
+  }
+}

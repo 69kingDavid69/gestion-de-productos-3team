@@ -1,0 +1,15 @@
+<nav class="navbar">
+  <a class="brand" routerLink="/">Gestión de productos</a>
+
+  <div class="links">
+    @if (currentUser(); as user) {
+      <span>Hola, {{ user.name }}</span>
+      <button type="button" (click)="logout()" [disabled]="loading">
+        {{ loading ? 'Cerrando...' : 'Cerrar sesión' }}
+      </button>
+    } @else {
+      <a routerLink="/login">Iniciar sesión</a>
+      <a class="register-link" routerLink="/register">Registrarse</a>
+    }
+  </div>
+</nav>
